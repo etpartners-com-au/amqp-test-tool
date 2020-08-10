@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<p:NotifyWorkExecutedEvent xmlns:p="http://www.mesa.org/xml/B2MML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mesa.org/xml/B2MML platform:/resource/GACXSD/B2MML-ProcessEvents.xsd ">
+
+<!-- V0.1 design for FMS Truck Cycle for Pit to Crusher -->
+<!-- 
+Publishing (source) System: WencoMine
+Subscribing Systems: Minemarket, DataWarehouse
+
+
+ -->
+
+<p:ApplicationArea>
+	<!-- Refer to TIBCO B2MML APPLICATIONAREA DESIGN document  -->
+    <p:Sender>
+      <!-- Defined in the ApplicationArea TDD  -->
+      <p:LogicalID>FMS</p:LogicalID>
+      <p:ComponentID>WencoMine</p:ComponentID>
+    </p:Sender>
+    <!-- Mandatory to include this timestamp, must be in UTC format
+    	source system records the message creation time here  -->    
+    <p:CreationDateTime>2018-11-06T00:15:41Z</p:CreationDateTime>
+    <!-- Refer to TIBCO B2MML SYSTEMBOUNDARY DESIGN document  -->
+    <!-- USERAREA is reserved for error handling. Not required when creating the message -->
+    <!-- 
+    TR, need to update our xsd reference for the ErrorInfo-UserArea.xsd in bitbucket
+	ComponentID of system declaring the business error in 'ThowedFrom'  Correct "throwed' to 'thrown'
+
+    <p:UserArea/>   
+    	<ext:ErrorMessage 
+		xmlns:ext="http://www.mesa.org/xml/B2MML-Extention" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema" >
+			<ThrowedFrom>Minemarket</ThrowedFrom>   
+			<TimeStamp>2018-11-06T00:15:45Z</TimeStamp>
+			<ErrorType>BusinessError</ErrorType>
+			<ErrorCode>HierarchyScope invalid</ErrorCode>
+			Gac is Invavlid
+			GAC is Valid
+			<ErrorDescription>EquipmentID:Gac for EquipmentLevel:Enterprise in payload not found in Minemarket</ErrorDescription>
+    	</ext:ErrorMessage>
+    </p:UserArea>
+        -->
+  </p:ApplicationArea>  
+  
+  <p:DataArea>  
+    <p:Notify/>        
+    <p:WorkExecutedEvent>
+       <p:ID>WencoMine GUID_001 example</p:ID>  <!-- The event ID should be a GUID mastered by the publisher for end-to-end message tracking -->
+       <p:HierarchyScope>
+        <p:EquipmentID>GAC</p:EquipmentID>
+        <p:EquipmentLevel>Enterprise</p:EquipmentLevel>
+        <p:HierarchyScope>
+        	<p:EquipmentID>Tinguilinta Mine</p:EquipmentID>
+            <p:EquipmentLevel>Site</p:EquipmentLevel>
+		<!-- FMS will include lower EquipmentLevels within the JobRsponse Actuals as it executes work across multiple AREA levels -->
+		<!-- Subscribing systems must read this HierarchyScope in conjuction with HierarcyScope in the actuals to determine locations -->
+		<!-- FMS system will not be including WorkMasters for the GAC Implementation -->
+        </p:HierarchyScope>
+      </p:HierarchyScope>
+      <!-- All systems reporting work must include JobResponse details
+      Minimum requirement is for WorkmasterID, Start/End times -->
+      <!-- For systems performing testing work, TestResults will go in CMLR until the B2MMLv7.0 is updated -->
+	  <!-- There is no SampleRelated information for any FMS ore movements in Scope. Note: GAC have introduced a train sample, but this is not integrated to the FMS -->
+      <p:AddedJobResponseRecord>
+        <p:JobResponse>
+        	<!-- JobResponse\ID is used to track the individual JobResponse across systems where it may be Added, changed, deleted or reported
+        	It is important to publishing to master the ID, record it, and in the event of correcting in a WorkReconciledEvent
+        	It is important in particular for systems that server the ISA95 Tracking Function as they should record the entire JobResponse, and replicate the JobResponse
+        	when publishing out that they have tracked work with a WorkResponse in the PerformanceTrackedEvent message -->
+         <p:ID>WencoMine JRGUID12345 example</p:ID>
+		 <!-- GAC chose not to integrate daily schedule, So FMS will not receive JobOrder for 
+		 OreExtraction, Crushing or Overburden Removal. WencoMine could opt to include their 
+		 own JobOrders for these tasks  -->
+		 <!-- FMS will receive a TrainSchedule for TrainLoading, and could include that JobOrder
+		 for TrainLoading Events -->
+         <!-- Optional This should be JobOrderID from the daily schedule (WorkScheduled) -->
+		 <!-- <p:JobOrderID></p:JobOrderID> --> 
+         <p:WorkMasterID>Ore Extraction</p:WorkMasterID> <!-- Wenco at a minimum should include this WorkMaster -->
+         <p:StartTime>2018-10-16T11:15:41Z</p:StartTime>
+         <p:EndTime>2018-10-17T00:15:41Z</p:EndTime>
+         
+         <!-- EquipmentActual set_#1  -->
+         <p:EquipmentActual>
+          	<p:EquipmentID>Komatsu - WA 800-3_1</p:EquipmentID> <!-- represents an Excavators equipID required to load the truck  -->
+          	<!-- EquipmentUse is a mandatory element -->
+          	<p:EquipmentUse>Used</p:EquipmentUse>
+          	<!-- HierarchyScope is a mandatory element -->
+          	<!-- represents the location of the equipment -->
+          	<p:HierarchyScope>
+          		<p:EquipmentID>Live Mining Area</p:EquipmentID>
+          		<p:EquipmentLevel>Area</p:EquipmentLevel>
+          		<p:HierarchyScope>
+          			<p:EquipmentID>P20</p:EquipmentID>
+          			<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+          			<p:HierarchyScope>
+          				<p:EquipmentID>Pit05</p:EquipmentID>
+          				<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+          				<p:HierarchyScope>
+          					<p:EquipmentID>A</p:EquipmentID>
+          					<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+          				</p:HierarchyScope>
+          			</p:HierarchyScope>
+          		</p:HierarchyScope>
+          	</p:HierarchyScope>
+			<!-- Optional for FMS to include -->
+          	<p:EquipmentActualProperty>
+          		<p:ID>Elevation</p:ID>
+          		<p:Value>
+          			<p:ValueString>209.793</p:ValueString>
+          			<p:UnitOfMeasure>m</p:UnitOfMeasure>         		
+          		</p:Value>
+          	</p:EquipmentActualProperty>
+          	<p:EquipmentActualProperty>
+			<!-- FMS can include this equipment property to advise that the Truck is fitted with scales (YES), or is not fitted (NO) -->
+          		<p:ID>WeightScaleFitted</p:ID>
+          		<p:Description>Yes/No</p:Description>
+          		<p:Value>
+          			<p:ValueString>No</p:ValueString> 
+          		</p:Value>
+          	</p:EquipmentActualProperty>
+         </p:EquipmentActual>
+
+         <!-- EquipmentActual set_#2  -->
+         <p:EquipmentActual>
+          	<!-- <p:EquipmentClassID>HU</p:EquipmentClassID> reserved for future use   -->
+          	<p:EquipmentID>TK555</p:EquipmentID> <!-- represents the Haul Truck ID -->
+          	<!-- EquipmentUse is a mandatory element -->
+          	<p:EquipmentUse>Used</p:EquipmentUse>
+          	<!-- HierarchyScope is a mandatory element -->
+          	<!-- Ommission of HierarchyScope at this part of the message, indicates the Haul Truck does all it's work within the SITE
+          		it's work is conducted across two AREAs 
+          		- Live Mining Area &
+          		- OHP01
+          		As we cannot include both AREA's, HS ends for this piece of equipment ends here at the Site Level
+          		 -->
+          	<p:EquipmentActualProperty>
+			<!-- FMS can include this equipment property to advise that the Truck is fitted with scales (YES), or is not fitted (NO) -->
+          		<p:ID>WeightScaleFitted</p:ID>
+          		<p:Description>Yes/No</p:Description>
+          		<p:Value>
+          			<p:ValueString>No</p:ValueString> 
+          		</p:Value>
+          	</p:EquipmentActualProperty>
+          	<p:EquipmentActualProperty>
+			<!-- FMS can include this equipment property to advise the trucks carrying capacity in volume -->
+          		<p:ID>Payload Capacity</p:ID>
+          		<p:Description>The cargo carrying capacity of the equipment</p:Description>
+          		<p:Quantity>
+          			<p:QuantityString>17.1953429902338</p:QuantityString>
+          			<p:UnitOfMeasure>m3</p:UnitOfMeasure>
+          			<p:Key>volume</p:Key>
+          		</p:Quantity>
+          	</p:EquipmentActualProperty>
+         </p:EquipmentActual>
+         
+         <!-- EquipmentActual set_#3  -->         
+          <p:EquipmentActual>
+          	<p:EquipmentClassID>Crusher</p:EquipmentClassID>
+          	<p:EquipmentID>CR001</p:EquipmentID>
+          	<!-- EquipmentUse is a mandatory element -->
+          	<p:EquipmentUse>Used</p:EquipmentUse>
+          	<!-- HierarchyScope is a mandatory element -->
+          	<p:HierarchyScope>
+          		<p:EquipmentID>OHP01</p:EquipmentID>
+          		<p:EquipmentLevel>Area</p:EquipmentLevel>
+          	</p:HierarchyScope>
+          </p:EquipmentActual>
+
+
+<!-- MaterialActual set#1 for consumed source information -->          
+          <p:MaterialActual>
+			<!-- No MaterialClass is defined for Insitu Ore -->
+            <p:MaterialDefinitionID>Insitu Ore</p:MaterialDefinitionID>
+            <p:MaterialLotID>P25_Pit05_A_55000</p:MaterialLotID>        
+            <p:MaterialUse>Consumed</p:MaterialUse>
+			<!-- FMS must report the Hierarchy Scope below of the location of the source MaterialLot -->
+			<!-- Subscribing systems can determine location by reading the Hierarchy Scope from Enterprise, down to the last StorageUnit -->
+            <p:HierarchyScope>
+            	<p:EquipmentID>Live Mining Area</p:EquipmentID>
+                <p:EquipmentLevel>Area</p:EquipmentLevel>
+                <p:HierarchyScope>
+                	<p:EquipmentID>P25</p:EquipmentID>
+                	<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+                		<p:HierarchyScope>
+                			<p:EquipmentID>Pit05</p:EquipmentID>
+                			<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+                			<p:HierarchyScope>
+                				<p:EquipmentID>A</p:EquipmentID>
+                				<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+                			</p:HierarchyScope>
+                		</p:HierarchyScope>
+                </p:HierarchyScope>               
+            </p:HierarchyScope>
+  <!--      <p:TestSpecificationID></p:TestSpecificationID>  this is omitted as there is no Sampling during this work  -->
+  <!-- 		<p:MaterialActualProperty></p:MaterialActualProperty> FMS is unlikely to include properties   -->
+          </p:MaterialActual>
+
+<!-- MaterialActual set#2 for produced destination information -->          
+          <p:MaterialActual>
+			<p:MaterialClassID>ROM</p:MaterialClassID>  <!-- All types of ROM belong to this Class -->
+            <p:MaterialDefinitionID>ROMHG</p:MaterialDefinitionID>
+            <!-- represents the ROMHG MaterialLot stored inside the crusher -->
+            <!-- the MaterialLot inside the crusher is a continuous build/destroy -->
+            <p:MaterialLotID>CR001</p:MaterialLotID> <!-- Minemarket Alias1 for the FixedPlantCrusherStockpile -->
+            <p:MaterialUse>Produced</p:MaterialUse>
+			<!-- FMS must report in tonnes  -->
+            <!-- FMS system must convert the volume to report tonnes when a truck/FEL has no truck scales -->  
+            <p:Quantity>
+                <p:QuantityString>39.3601401</p:QuantityString>  <!-- Converted from volume, OR measured by Truck scale -->
+                <p:DataType>Numeric</p:DataType>
+                <p:UnitOfMeasure>t</p:UnitOfMeasure>     
+                <p:Key>mass</p:Key>           
+            </p:Quantity>
+            <!-- FMS must always include the volume if the truck/FEL has no truck scales -->
+            <!-- FMS can omit the volume if the truck/FEL is fitted with truck scales and providing a measurement in Tonnes -->
+            <p:Quantity>
+                <p:QuantityString>17.1953429902338</p:QuantityString> <!-- Volume where no truckscales are available -->
+                <p:DataType>Numeric</p:DataType>
+                <p:UnitOfMeasure>m3</p:UnitOfMeasure>     
+                <p:Key>volume</p:Key>   <!-- When reporting volume to calculate tonnes, MaterialProperty|Density may be included as a property -->
+            </p:Quantity>            
+			<!-- FMS must report the Hierarchy Scope below of the location of the destination MaterialLot -->
+			<!-- Subscribing systems can determine location by reading the Hierarchy Scope from Enterprise, down to the last StorageUnit -->
+            <p:HierarchyScope>
+                    <p:EquipmentID>OHP01</p:EquipmentID>
+                    <p:EquipmentLevel>Area</p:EquipmentLevel>
+                    <p:HierarchyScope>
+                    	<p:EquipmentID>CR001</p:EquipmentID>  <!-- Minemarket Alias1 for the Equipment FixedPlantCrusherStockpile?? -->
+                    	<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+                    </p:HierarchyScope>               
+            </p:HierarchyScope>
+      <!-- 	<p:MaterialActualProperty/> FMS may want to publish density here   -->
+          </p:MaterialActual>
+          
+<!-- MaterialActual set#3 for Destructive Sample information -->
+<!-- This entire section is not required in the PitToCrusher scenario. It is commented out but remains as a reference -->
+<!-- 
+          <p:MaterialActual>
+          	<p:MaterialDefinitionID>Port Outflow Sample</p:MaterialDefinitionID>
+          	<p:MaterialLotID>1234567890</p:MaterialLotID>
+          	<p:MaterialUse>Destructive Sample</p:MaterialUse>
+          	<p:HierarchyScope>
+          		<p:EquipmentID>Product Stockyard</p:EquipmentID>
+          		<p:EquipmentLevel>Area</p:EquipmentLevel>
+          		<p:HierarchyScope>
+          			<p:EquipmentID>SS02</p:EquipmentID>
+          			<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+          		</p:HierarchyScope>
+          	</p:HierarchyScope>
+          	We are using this field as MaterialTestSpecificationID field in JobResponse is missing in B2MMLv7.0
+          	Destructive Samples have two types of testing that occurs, so two are listed here
+          	Hard coded at GAC as no ability to schedule and despatch to Fixed Plant exists to communicate the TEST Requirements to Fixed Plant
+          	<p:TestSpecificationID>GACPORTOUT</p:TestSpecificationID>
+          	<p:TestSpecificationID>GACPORTOUTREF</p:TestSpecificationID>
+          </p:MaterialActual>
+ -->
+
+          
+<!-- MaterialActual set#4 for Retained Sample information -->
+<!-- This entire section is not required in the PitToCrusher scenario. It is commented out but remains as a reference -->
+<!--
+          <p:MaterialActual>
+          	<p:MaterialDefinitionID>Port OBA01 Sample</p:MaterialDefinitionID>
+          	<p:MaterialLotID>OBPI_2345678901</p:MaterialLotID>
+          	<p:MaterialUse>Retained Sample</p:MaterialUse>
+          	<p:HierarchyScope>
+          		<p:EquipmentID>Product Stockyard</p:EquipmentID>
+          		<p:EquipmentLevel>Area</p:EquipmentLevel>
+          		<p:HierarchyScope>
+          			<p:EquipmentID>41210-CV001</p:EquipmentID>
+          			<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+          		</p:HierarchyScope>
+          	</p:HierarchyScope>
+          	We are using this field as MaterialTestSpecificationID field in JobResponse is missing in B2MMLv7.0
+          	Hard coded at GAC as no ability to schedule and despatch to Fixed Plant exists to communicate the TEST Requirements to Fixed Plant
+          	<p:TestSpecificationID>GAC_OB</p:TestSpecificationID>
+          	Note: although the MaterialActual is testing the properties here in real time, they will only be listed in CMLR.
+          	 This design will revert to tested properties in JobResponse when B2MMLv7.0 is modified to catch up with ISA95
+          </p:MaterialActual>
+-->          
+        </p:JobResponse>
+      </p:AddedJobResponseRecord>
+
+<!-- CMLR set#1 for the Consumed MaterialLotID mentioned in the JobResponse | Total MaterialLot Balance Current State ONLY -->      
+      <p:ChangedMaterialLotRecord>
+        <p:MaterialLot>
+          <p:ID>P25_Pit05_A_55000</p:ID>
+          <p:HierarchyScope>
+          	<p:EquipmentID>Live Mining Area</p:EquipmentID>
+          	<p:EquipmentLevel>Area</p:EquipmentLevel>
+          	<p:HierarchyScope>
+          		<p:EquipmentID>P25</p:EquipmentID>
+          		<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+          		<!-- Nested StorageUnits for InsituOre on FMS messages -->
+          		<p:HierarchyScope>
+          			<p:EquipmentID>Pit05</p:EquipmentID>
+          			<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+          			<p:HierarchyScope>
+          				<p:EquipmentID>A</p:EquipmentID>
+          				<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+          			</p:HierarchyScope>
+          		</p:HierarchyScope>
+          	</p:HierarchyScope>
+          </p:HierarchyScope>
+          <p:MaterialDefinitionID>Insitu Ore</p:MaterialDefinitionID>
+          <!-- <p:Quantity/> FMS should not include QTY as it cannot calculate the tonnes remaining in the dig block -->
+          <!-- <p:MaterialLotProperty/>   FMS should not publish the qualities (Al2o3, Fe2O3 etc.) as it cannot calculate them for the truckload -->
+        </p:MaterialLot>
+      </p:ChangedMaterialLotRecord>
+
+<!-- CMLR set#2 for the Produced MaterialLotID mentioned in the JobResponse | Total MaterialLot Balance Current State ONLY -->      
+      <p:ChangedMaterialLotRecord>
+      	<p:MaterialLot>
+            <!-- represents the ROMHG MaterialLot stored inside the crusher -->
+            <!-- the MaterialLot inside the crusher is a continuous build/destroy -->
+      		<p:ID>CR001</p:ID> 
+      		<p:HierarchyScope>
+      			<p:EquipmentID>Live Mining Area</p:EquipmentID>
+      			<p:EquipmentLevel>Area</p:EquipmentLevel>
+      			<p:HierarchyScope>
+      				<p:EquipmentID>CR001</p:EquipmentID> <!-- Minemarket Alias1 for the Equipment FixedPlantCrusherStockpile?? -->
+      				<p:EquipmentLevel>StorageUnit</p:EquipmentLevel>
+      			</p:HierarchyScope>
+      		</p:HierarchyScope>
+      		<p:MaterialDefinitionID>ROMHG</p:MaterialDefinitionID>
+       <!-- <p:Quantity/> QTY for current state total balance in the crusher cannot be calculated by the FMS system as this 
+       MaterialLot is reclaimed/consumed by another system. It shall be omitted for message producing to crushers  -->	
+      		<!-- Assemblies reference for use with Trains, Rakes, Wagons 
+          	<p:AssemblyLotID>
+          		<p:ID></p:ID>
+          	</p:AssemblyLotID>
+          	<p:AssemblyLotID>
+          		<p:ID></p:ID>
+          	</p:AssemblyLotID>
+          	<p:AssemblyLotID>
+          		<p:ID></p:ID>
+          	</p:AssemblyLotID>
+          <p:AssemblyType>Logical</p:AssemblyType>
+          <p:AssemblyRelationship>Transient</p:AssemblyRelationship>     -->
+      	</p:MaterialLot>
+      </p:ChangedMaterialLotRecord>
+
+<!-- CMLR sets #3 and #4 have been omitted as there are no Sampling points in a PitToCrusher Ore Movement -->
+       
+    </p:WorkExecutedEvent>
+  </p:DataArea>
+</p:NotifyWorkExecutedEvent>

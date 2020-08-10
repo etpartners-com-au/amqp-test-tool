@@ -2,28 +2,25 @@
 
 This README would normally document whatever steps are necessary to get your application up and running.
 
-### What is this repository for? ###
+Go make a real wiki page....
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+This is a blocking client - its should send and THEN exit.
 
-### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+## Install
+You will need the proton library:
 
-### Contribution guidelines ###
+    pip install python-qpid-proton
 
-* Writing tests
-* Code review
-* Other guidelines
+Once you have that installed - edit the `client.py` file and then change the username and password.
 
-### Who do I talk to? ###
+You will have to use URL quote_plus (like an encoder) to make sure any weird passwords can be sent on the URL.
 
-* Repo owner or admin
-* Other community or team contact
+## Running
+
+Launch the app like this:
+
+    python client.py
+	
+Make sure you set `messagePattern` to match the filelist you want. Go read the python docs for GLOB.
+
