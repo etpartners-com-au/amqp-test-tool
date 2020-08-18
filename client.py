@@ -46,7 +46,7 @@ sender = conn.create_sender("FMS.Outbound.WorkExecuted.Error")
 
 for file in myFileList:
     try:
-        with open(file, 'rb') as f:
+        with open(file, 'r') as f:
             original=f.read()
             encodedMessage = codecs.encode(original, encoding=myEncoding)
             myMessage = Message(body=encodedMessage, 
