@@ -2,9 +2,13 @@
 
 This README would normally document whatever steps are necessary to get your application up and running.
 
-Go make a real wiki page....
+This is a blocking messaging client - its should send and THEN exit.
 
-This is a blocking client - its should send and THEN exit.
+The `python-qpid-proton` library REQUIRES compilers - Visual studio community edition with command line support. 
+* Install it
+* Launch the x64 command line dev tools
+* source your python env - `c:\anaconda3\scripts\activate.bat c:\anaconda3`
+* then use pip to install the module - it will build a binary whl file that matches python and your architecture.
 
 
 ## Install
@@ -14,7 +18,7 @@ You will need the proton library:
 
 Once you have that installed - edit the `client.py` file and then change the username and password.
 
-You will have to use URL quote_plus (like an encoder) to make sure any weird passwords can be sent on the URL.
+You will have to use URL `quote_plus` (like an `encoder`) to make sure any weird passwords can be sent on the URL.
 
 ## Running
 
